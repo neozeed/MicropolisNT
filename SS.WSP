@@ -1,0 +1,60 @@
+[Header]
+Version=1.10 .00000.0619
+WinVer=518
+WorkspaceName0=&Edit
+WorkspaceName1=&Debug
+WorkspaceName2=&Custom
+Initial=3
+PromptWhenSave=1
+CloseWindow=1
+Status=-1 -1 -1 4
+[Workspace3]
+Coord=182 182 1622 941
+Style=382664704
+RibbonHidden=0
+StatusHidden=0
+WindowNumber=4
+[WindowWorkspace30]
+Type=4
+DuplicateNb=1
+Coord=0 0 1424 439
+Style=0
+Font=-13 0 0 0 400 0 0 0 0 0 0 0 0
+FaceName=Courier
+Language=0
+TopMostWindow=0
+FileName=Output - Debug
+CursorPosition=2 31 0
+[WindowWorkspace31]
+Type=13
+DuplicateNb=1
+Coord=26 26 1424 465
+Style=0
+Font=-13 0 0 0 400 0 0 0 0 0 0 0 0
+FaceName=Courier
+Language=4
+TopMostWindow=0
+FileName=C:\MSVCNT\PROJ\SS\SRC\SIMULATION.H
+CursorPosition=490 517 0
+[WindowWorkspace32]
+Type=13
+DuplicateNb=1
+Coord=52 52 1424 491
+Style=0
+Font=-13 0 0 0 400 0 0 0 0 0 0 0 0
+FaceName=Courier
+Language=1
+TopMostWindow=1
+FileName=C:\MSVCNT\PROJ\SS\SRC\MAIN.C
+CursorPosition=1080 1108 3
+[WindowWorkspace33]
+Type=13
+DuplicateNb=1
+Coord=78 78 1424 517
+Style=0
+Font=-13 0 0 0 400 0 0 0 0 0 0 0 0
+FaceName=Courier
+Language=1
+TopMostWindow=0
+FileName=C:\MSVCNT\PROJ\SS\SRC\TOOLS.C
+CursorPosition=2982 3010 0
