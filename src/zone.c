@@ -2,7 +2,7 @@
  * Based on original Micropolis code from MicropolisLegacy project
  */
 
-#include "simu.h"
+#include "sim.h"
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
@@ -1108,7 +1108,7 @@ static void SetZPower(int x, int y) {
         }
     }
 
-    /* Update power count */
+    /* Update power count - use the external variables from sim.h */
     if (powered) {
         PwrdZCnt++;
     } else {

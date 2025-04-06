@@ -3,11 +3,12 @@
  */
 
 #include "tools.h"
-#include "simu.h"
+#include "sim.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include "gdifix.h"
 
 /* External reference to the toolbar width */
 extern int toolbarWidth;
@@ -177,10 +178,6 @@ int checkBigZone(short tileValue, int *deltaHPtr, int *deltaVPtr);
 void put3x3Rubble(int x, int y);
 void put4x4Rubble(int x, int y);
 void put6x6Rubble(int x, int y);
-
-
-/* Win32 fixes */
-HBITMAP LoadBitmapFromFile(LPCSTR filePath, HDC hdc);
 
 /* Main connection function used for roads, rails, and wires */
 int ConnectTile(int x, int y, short *tilePtr, int command) {
@@ -1832,7 +1829,6 @@ LRESULT CALLBACK ToolbarProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 void LoadToolbarBitmaps(void) {
     int i;
     char filename[MAX_PATH];
-    HDC hdc = GetDC(hwndMain); // Get a handle to the screen DC
 
     /* Load the renamed bitmaps directly from the images folder */
     for (i = 0; i < 17; i++) {
@@ -1841,8 +1837,7 @@ void LoadToolbarBitmaps(void) {
 
         /* Load the bitmap */
         hToolBitmaps[i] =
-		LoadBitmapFromFile(filename, hdc);
-//            LoadImage(NULL, filename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+            LoadImageFromFile(filename, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 
         if (hToolBitmaps[i] == NULL) {
             /* Log error if bitmap loading fails */
@@ -1850,7 +1845,6 @@ void LoadToolbarBitmaps(void) {
             OutputDebugString(filename);
         }
     }
-    ReleaseDC(NULL, hdc);
 }
 
 /* Clean up toolbar bitmap resources */
@@ -1999,6 +1993,7 @@ void CreateToolbar(HWND hwndParent, int x, int y, int width, int height) {
 
     /* Register the toolbar window class if not already done */
     if (!GetClassInfo(NULL, "MicropolisToolbar", &wc)) {
+        //wc.cbSize = sizeof(WNDCLASS);
         wc.style = CS_HREDRAW | CS_VREDRAW;
         wc.lpfnWndProc = ToolbarProc;
         wc.cbClsExtra = 0;
@@ -2009,6 +2004,7 @@ void CreateToolbar(HWND hwndParent, int x, int y, int width, int height) {
         wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
         wc.lpszMenuName = NULL;
         wc.lpszClassName = "MicropolisToolbar";
+        //wc.hIconSm = NULL;
 
         RegisterClass(&wc);
     }
@@ -2937,76 +2933,4 @@ int HandleToolMouse(int mouseX, int mouseY, int xOffset, int yOffset) {
 
     /* Apply the current tool */
     return ApplyTool(mapX, mapY);
-}
-
-
-// Function to load a bitmap from a file and handle different palette sizes
-HBITMAP LoadBitmapFromFile(LPCSTR filePath, HDC hdc) {
-    BITMAPFILEHEADER bmfHeader;
-    BITMAPINFOHEADER bmiHeader;
-    HBITMAP hBitmap = NULL;
-    RGBQUAD *colorTable = NULL;
-    BYTE *bitmapBits = NULL;
-    FILE *file;
-
-    // Open the file in binary mode
-    file = fopen(filePath, "rb");
-    if (file == NULL) {
-        MessageBox(NULL, "Failed to open the file!", "Error", MB_OK | MB_ICONERROR);
-	addDebugLog("LoadBitmapFromFile failed to load %s\n",filePath);
-        return NULL;
-    }
-
-    // Read the BITMAPFILEHEADER
-    fread(&bmfHeader, sizeof(BITMAPFILEHEADER), 1, file);
-    if (bmfHeader.bfType != 0x4D42) { // Check for 'BM' signature
-        MessageBox(NULL, "Not a valid BMP file!", "Error", MB_OK | MB_ICONERROR);
-        fclose(file);
-        return NULL;
-    }
-
-    // Read the BITMAPINFOHEADER
-    fread(&bmiHeader, sizeof(BITMAPINFOHEADER), 1, file);
-
-    // Handle indexed color bitmaps (palettes)
-    if (bmiHeader.biBitCount <= 8) {
-        // Calculate the size of the palette
-        size_t colorTableSize = (1 << bmiHeader.biBitCount) * sizeof(RGBQUAD);
-        colorTable = (RGBQUAD *)malloc(colorTableSize);
-        if (colorTable == NULL) {
-            MessageBox(NULL, "Failed to allocate memory for color table!", "Error", MB_OK | MB_ICONERROR);
-            fclose(file);
-            return NULL;
-        }
-        fread(colorTable, colorTableSize, 1, file);
-    }
-addDebugLog("bmiHeader.biBitCount is %d\n",bmiHeader.biBitCount);
-
-    // Allocate memory for the bitmap bits
-    bitmapBits = (BYTE *)malloc(bmiHeader.biSizeImage);
-    if (bitmapBits == NULL) {
-        MessageBox(NULL, "Failed to allocate memory for bitmap bits!", "Error", MB_OK | MB_ICONERROR);
-        free(colorTable);
-        fclose(file);
-        return NULL;
-    }
-
-    // Move file pointer to the start of bitmap data and read it
-    fseek(file, bmfHeader.bfOffBits, SEEK_SET);
-    fread(bitmapBits, 1, bmiHeader.biSizeImage, file);
-    fclose(file);
-
-    // Create the HBITMAP
-    hBitmap = CreateDIBitmap(hdc, &bmiHeader, CBM_INIT, bitmapBits, 
-                             (BITMAPINFO *)&bmiHeader, DIB_RGB_COLORS);
-
-    // Clean up allocated memory
-    free(colorTable);
-    free(bitmapBits);
-
-    if (hBitmap == NULL) {
-        MessageBox(NULL, "Failed to create HBITMAP!", "Error", MB_OK | MB_ICONERROR);
-    }
-addDebugLog("LoadBitmapFromFile loaded %s\n",filePath);
-    return hBitmap;
 }

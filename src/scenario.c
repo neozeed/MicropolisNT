@@ -2,10 +2,11 @@
  * Based on original Micropolis code from MicropolisLegacy project
  */
 
-#include "simu.h"
+#include "sim.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include "gdifix.h"
 
 /* External log functions */
 extern void addGameLog(const char *format, ...);
